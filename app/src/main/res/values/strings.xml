@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">tab</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="app_name">데자와</string>
+    <string name="tab_text_1">연락처</string>
+    <string name="tab_text_2">사진</string>
+    <string name="tab_text_3">게임</string>
 </resources>
