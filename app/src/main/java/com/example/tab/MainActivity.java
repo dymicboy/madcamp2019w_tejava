@@ -23,7 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    static final String[] LIST_MENU = {"LIST1", "LIST2", "LIST3"} ;
+    private final Object initLock = new Object();
+
+    private void init(){
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+
+        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(sectionsPagerAdapter);
+
+        TabLayout tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -34,17 +44,9 @@ public class MainActivity extends AppCompatActivity {
         // 주소록 권한 확인하고 요청하는 부분
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)!= PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
+        }else {
+            init();
         }
-
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-
-        ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
-
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
-
-
     }
 
     @Override
@@ -53,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             case 100: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    //앱 권한 허용됨에 따라 lock을 해제함
+                    init();
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());
                 }
