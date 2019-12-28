@@ -29,31 +29,33 @@ public class tab1 extends Fragment {
         return new tab1();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View vi = inflater.inflate(R.layout.tab1_layout, container, false);
-        ListView listview= (ListView) vi.findViewById(R.id.listView1);
-        ArrayList list = new ArrayList();
-        ArrayList<String> nameList = new ArrayList<>();
+        ListView listview= vi.findViewById(R.id.listView1);
+        ArrayList<String> list = new ArrayList<>();
+        ArrayList nameList;
         nameList = getAllContacts();
         int i;
         for(i=0;i<nameList.size();i++){
-            list.add(nameList.get(i));
+            list.add((String) nameList.get(i));
 
         }
-        ArrayAdapter adapter = new ArrayAdapter(this.getActivity(),android.R.layout.simple_list_item_1, list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(),android.R.layout.simple_list_item_1, list);
         listview.setAdapter(adapter);
 
         return vi;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private ArrayList getAllContacts() {
         ArrayList<String> nameList = new ArrayList<>();
         ContentResolver cr = this.getContext().getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
         if ((cur != null ? cur.getCount() : 0) > 0) {
-            while (cur != null && cur.moveToNext()) {
+            while (cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 if (cur.getInt(cur.getColumnIndex( ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
@@ -63,10 +65,10 @@ public class tab1 extends Fragment {
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
                             new String[]{id}, null);
                     String phoneNo = "0";
-                    while (pCur.moveToNext()) {
+                    while (pCur != null && pCur.moveToNext()) {
                         phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                     }
-                    if(phoneNo != "0"){
+                    if( !phoneNo.equals("0")){
                         name = name + " : " + phoneNo;
                     }
                     pCur.close();
