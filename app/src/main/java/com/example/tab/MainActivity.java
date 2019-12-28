@@ -49,13 +49,19 @@ public class MainActivity extends AppCompatActivity {
         else{
             flag+=1;
         }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 200);
         }
         else{
             flag+=1;
         }
-        if(flag == 2) init();
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 300);
+        }
+        else{
+            flag+=1;
+        }
+        if(flag == 3) init();
     }
 
     @Override
@@ -64,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             case 100: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(flag == 1) init();
+                    if(flag == 2) init();
                     else flag+=1;
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());
@@ -72,7 +78,16 @@ public class MainActivity extends AppCompatActivity {
             }
             case 200:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(flag == 1) init();
+                    if(flag == 2) init();
+                    else flag+=1;
+                } else {
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
+                return;
+            }
+            case 300:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(flag == 2) init();
                     else flag+=1;
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());

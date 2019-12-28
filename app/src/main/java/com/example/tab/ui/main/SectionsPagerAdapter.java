@@ -33,6 +33,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             return tab1.newInstance();
         }
         else if(position == 1){
+            //return tab2.newInstance();
             return tab2.newInstance();
         }
         else if(position == 2){
