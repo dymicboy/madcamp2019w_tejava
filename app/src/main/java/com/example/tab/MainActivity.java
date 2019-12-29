@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private final Object initLock = new Object();
     private int flag = 0;
 
     private void init(){
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             flag+=1;
         }
         if(flag == 3) init();
+
     }
 
     @Override

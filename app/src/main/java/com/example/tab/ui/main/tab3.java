@@ -23,10 +23,10 @@ import com.example.tab.ui.main.PageViewModel;
 
 import java.util.ArrayList;
 
-public class tab1 extends Fragment {
+public class tab3 extends Fragment {
 
-    static tab1 newInstance() {
-        return new tab1();
+    static tab3 newInstance() {
+        return new tab3();
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -28,8 +28,8 @@ public class tab2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab2_layout, container, false);
-
         GridView gallery = view.findViewById(R.id.gridView1);
+
         gallery.setAdapter(new ImageAdapter(getActivity(),inflater,container));
 
         return view;
