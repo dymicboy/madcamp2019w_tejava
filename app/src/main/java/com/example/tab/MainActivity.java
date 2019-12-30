@@ -25,6 +25,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private int flag = 0;
+    private int total_flag=4;
 
     private void init(){
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
@@ -42,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // 주소록,이미지 권한 확인하고 요청하는 부분
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 400);
+        }
+        else{
+            flag+=1;
+        }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)!= PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
         }
@@ -60,17 +67,26 @@ public class MainActivity extends AppCompatActivity {
         else{
             flag+=1;
         }
-        if(flag == 3) init();
+        if(flag == total_flag) init();
 
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
+            case 400: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(flag == total_flag-1) init();
+                    else flag+=1;
+                } else {
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
+            }
             case 100: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(flag == 2) init();
+                    if(flag == total_flag-1) init();
                     else flag+=1;
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());
@@ -78,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case 200:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(flag == 2) init();
+                    if(flag == total_flag-1) init();
                     else flag+=1;
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());
@@ -87,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case 300:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(flag == 2) init();
+                    if(flag == total_flag-1) init();
                     else flag+=1;
                 } else {
                     android.os.Process.killProcess(android.os.Process.myPid());
