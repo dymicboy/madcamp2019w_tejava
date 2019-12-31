@@ -43,7 +43,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +67,7 @@ public class tab3 extends Fragment implements
     private int a=0;
     private String number;
     private Activity myActivity;
+    private JSONArray json_array = null;
 
 
     MyTimer myTimer;
@@ -137,6 +140,25 @@ public class tab3 extends Fragment implements
                     setLocation(location);
                 }
             }
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            request(number, Double.toString(latitude), Double.toString(longitude));
+            if(json_array!=null) {
+                for (int i = 0; i < json_array.length(); i++) {
+                    JSONObject tmp = null;
+                    try {
+                        tmp = json_array.getJSONObject(i);
+                        tmp.getString("number");
+                        tmp.getString("lati");
+                        tmp.getString("longi");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+
         }
         @Override
         public void onFinish() {
@@ -192,10 +214,11 @@ public class tab3 extends Fragment implements
                     try {
 
                         //받은 json형식의 응답을 받아
-                        JSONObject jsonObject = new JSONObject(response.toString());
-                        Log.i("json_parse_info",jsonObject.toString());
+                        json_array = new JSONObject(response.toString()).getJSONArray("info");
+
+                        Log.i("json_parse_info",json_array.toString());
                         //key값에 따라 value값을 쪼개 받아옵니다.
-                        String resultId = jsonObject.getString("info");
+
 
 
                     } catch (Exception e) {
