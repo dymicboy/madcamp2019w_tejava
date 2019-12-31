@@ -113,7 +113,8 @@ public class tab3 extends Fragment implements
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
             LatLng yourplace = new LatLng(latitude, longitude);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(yourplace));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(yourplace,16));
+            
         }
         myTimer = new MyTimer(6000, 1000);
     }
