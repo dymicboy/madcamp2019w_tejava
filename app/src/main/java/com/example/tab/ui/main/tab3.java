@@ -29,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -45,6 +46,9 @@ public class tab3 extends Fragment implements
 //    private Marker mSeoul;
 
     private GoogleMap mMap;
+    private Marker marker;
+    private int a=0;
+
 
     MyTimer myTimer;
     LocationManager locationManager;
@@ -88,7 +92,18 @@ public class tab3 extends Fragment implements
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 LatLng yourplace = new LatLng(latitude, longitude);
-                mMap.addMarker(new MarkerOptions().position(yourplace).title("your place"));
+
+                if(a>=1){
+                    marker.remove();
+                }
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(yourplace);
+                markerOptions.title("yourplace");
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker=mMap.addMarker(markerOptions);
+                a++;
+
+                //mMap.addMarker(new MarkerOptions().position(yourplace).title("your place"));
             }
         }
         @Override
@@ -105,7 +120,6 @@ public class tab3 extends Fragment implements
 //                .position(SEOUL)
 //                .title("SEOUL"));
 //        mSeoul.setTag(0);
-
         locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListner);
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -114,9 +128,7 @@ public class tab3 extends Fragment implements
             double longitude = location.getLongitude();
             LatLng yourplace = new LatLng(latitude, longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(yourplace,16));
-            
         }
         myTimer = new MyTimer(6000, 1000);
     }
-
 }
