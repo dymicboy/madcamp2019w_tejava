@@ -39,18 +39,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-//        전화번호 얻는 부분
-//        TelephonyManager tMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-//
-//        if (checkSelfPermission(Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-//            return;
-//        }
-//        String mPhoneNumber = tMgr.getLine1Number();
-//
-////        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-////        builder.setTitle("나의 전화번호는").setMessage(mPhoneNumber);
-////        AlertDialog alertDialog = builder.create();
-////        alertDialog.show();
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
