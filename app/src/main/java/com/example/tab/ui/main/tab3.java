@@ -52,6 +52,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class tab3 extends Fragment implements
         OnMapReadyCallback{
@@ -63,7 +64,7 @@ public class tab3 extends Fragment implements
 //    private Marker mSeoul;
 
     private GoogleMap mMap;
-    private Marker marker;
+    List<Marker> markerList = new ArrayList<Marker>();
     private int a=0;
     private String number;
     private Activity myActivity;
@@ -92,6 +93,9 @@ public class tab3 extends Fragment implements
         TelephonyManager tMgr = (TelephonyManager) this.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
 
         number = tMgr.getLine1Number();
+        if(number == ""){
+            number = "dummy";
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
@@ -109,54 +113,61 @@ public class tab3 extends Fragment implements
             super(millisInFuture, countDownInterval);
             this.start();
         }
-        private void setLocation(Location location){
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            LatLng yourplace = new LatLng(latitude, longitude);
-
-            if (a >= 1) {
-                marker.remove();
+        private void setLocation(){
+            if(a>=1){
+                markerList.clear();
             }
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(yourplace);
-            markerOptions.title("yourplace");
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-            marker = mMap.addMarker(markerOptions);
-            a++;
-        }
-
-        @Override
-        public void onTick(long millisUntilFinished) {
-            locationManager = (LocationManager) myActivity.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location != null){
-                setLocation(location);
-            }
-            else {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (location != null) {
-                    setLocation(location);
-                }
-            }
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            request(number, Double.toString(latitude), Double.toString(longitude));
             if(json_array!=null) {
                 for (int i = 0; i < json_array.length(); i++) {
                     JSONObject tmp = null;
                     try {
                         tmp = json_array.getJSONObject(i);
-                        tmp.getString("number");
-                        tmp.getString("lati");
-                        tmp.getString("longi");
+                        String tmp_number;
+                        if(tmp.has("number")) tmp_number = tmp.getString("number");
+                        else tmp_number = "null";
+
+                        Double tmp_lati = Double.parseDouble(tmp.getString("lati"));
+                        Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
+                        Log.i("location",tmp_lati+" "+tmp_longi);
+
+                        LatLng tmpplace = new LatLng( tmp_lati, tmp_longi);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(tmpplace);
+                        markerOptions.title(tmp_number);
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                        markerList.add(mMap.addMarker(markerOptions));
+                        a=1;
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
                 }
             }
+//            LatLng tmpplace = new LatLng(latitude, longitude);
+//
+//            if (a >= 1) {
+//                marker.remove();
+//            }
+//            MarkerOptions markerOptions = new MarkerOptions();
+//            markerOptions.position(tmpplace);
+//            markerOptions.title(tmp_number);
+//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+//            marker = mMap.addMarker(markerOptions);
+//            a++;
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            locationManager = (LocationManager) myActivity.getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location == null) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            request(number, Double.toString(latitude), Double.toString(longitude));
+            setLocation();
 
 
         }
