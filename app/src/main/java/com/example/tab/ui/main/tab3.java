@@ -49,8 +49,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class tab3 extends Fragment implements
-        OnMapReadyCallback{
+public class tab3 extends Fragment implements OnMapReadyCallback{
     static tab3 newInstance() {
         return new tab3();
     }
