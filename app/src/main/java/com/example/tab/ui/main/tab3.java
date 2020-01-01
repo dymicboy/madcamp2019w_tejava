@@ -2,15 +2,19 @@ package com.example.tab.ui.main;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -66,6 +70,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
     private String number;
     private Activity myActivity;
     private JSONArray json_array = null;
+    private View markericon;
 
 
     MyTimer myTimer;
@@ -83,6 +88,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         myActivity = this.getActivity();
         View vi = inflater.inflate(R.layout.tab3_layout, container, false);
+        markericon = inflater.inflate(R.layout.markericon, container, false);
 
         TelephonyManager tMgr = (TelephonyManager) this.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
         number = tMgr.getLine1Number();
@@ -162,6 +168,21 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
                             Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
                             Log.i("location", tmp_lati + " " + tmp_longi);
 
+                        LatLng tmpplace = new LatLng( tmp_lati, tmp_longi);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(tmpplace);
+                        markerOptions.title(tmp_number);
+                        markerOptions.snippet("여의도 한강 치맥 합시다.");
+
+
+                        if(tmp_number.equals(number)){
+                            //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(R.layout.markericon));
+
+                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon)));
+                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                        }
+                        markerList.add(mMap.addMarker(markerOptions));
+                        a=1;
                             LatLng tmpplace = new LatLng(tmp_lati, tmp_longi);
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(tmpplace);
@@ -271,5 +292,21 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private Bitmap createDrawableFromView(Context context, View view) {
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+
+        return bitmap;
     }
 }
