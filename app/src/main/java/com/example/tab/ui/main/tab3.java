@@ -1,11 +1,14 @@
 package com.example.tab.ui.main;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.telephony.TelephonyManager;
@@ -25,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.tab.MainActivity;
 import com.example.tab.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -39,19 +43,32 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-public class tab3 extends Fragment implements OnMapReadyCallback{
+public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private Hashtable<String, String> id_to_name;
     private Hashtable<String, String> phone_to_id;
@@ -214,6 +231,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMarkerClickListener(this);
         if (location != null) {
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
@@ -221,6 +239,16 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(yourplace,16));
         }
         myTimer = new MyTimer(6000, 1000);
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker){
+        Log.i("click_log","clicked");
+        Double latitude = marker.getPosition().latitude;
+        Double longitude = marker.getPosition().longitude;
+        String request_url = makeURL (location.getLatitude(), location.getLongitude(), latitude, longitude);
+        path_request(request_url);
+        return true;
     }
 
 
@@ -276,6 +304,133 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void path_request(String request_url){
+        //url 요청주소 넣는 editText를 받아 url만들기
+        String url = "http://be78008c.ngrok.io/";
+
+        try {
+            //입력해둔 edittext의 id와 pw값을 받아와 put해줍니다 : 데이터를 json형식으로 바꿔 넣어주었습니다.
+            JSONObject data= new JSONObject();
+            Date now = new Date();
+
+            data.accumulate("number", "path_url_request");
+            data.accumulate("url", request_url);
+            Log.i("path_request","path request sent to my server");
+
+            //이제 전송해볼까요?
+            final RequestQueue requestQueue = Volley.newRequestQueue(this.getContext());
+            final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url,data, new Response.Listener<JSONObject>() {
+
+                //데이터 전달을 끝내고 이제 그 응답을 받을 차례입니다.
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        //받은 json형식의 응답을 받아
+                        JSONObject path_url_json = new JSONObject(response.toString());
+                        Log.i("path_request","json raw" + path_url_json.toString());
+                        String routes = path_url_json.get("routes").toString();
+                        Log.i("path_request","path_url from my server" + routes);
+
+//                        if(result_json!=null){
+//                            drawPath(result_json);
+//                        }
+
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                //서버로 데이터 전달 및 응답 받기에 실패한 경우 아래 코드가 실행됩니다.
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    //Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            requestQueue.add(jsonObjectRequest);
+            //
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String makeURL (double sourcelat, double sourcelog, double destlat, double destlog ){
+        StringBuilder urlString = new StringBuilder();
+        urlString.append("https://maps.googleapis.com/maps/api/directions/json");
+        urlString.append("?origin=");// from
+        urlString.append(Double.toString(sourcelat));
+        urlString.append(",");
+        urlString.append(Double.toString( sourcelog));
+        urlString.append("&destination=");// to
+        urlString.append(Double.toString( destlat));
+        urlString.append(",");
+        urlString.append(Double.toString( destlog));
+        urlString.append("&sensor=false&mode=driving&alternatives=true");
+        urlString.append("&key=AIzaSyDWKaFb-KlHtk5OLlre37yJeWThk8vSats");
+        return urlString.toString();
+    }
+
+    public void drawPath(String  result) {
+
+        try {
+            //Tranform the string into a json object
+            final JSONObject json = new JSONObject(result);
+            JSONArray routeArray = json.getJSONArray("routes");
+            JSONObject routes = routeArray.getJSONObject(0);
+            JSONObject overviewPolylines = routes.getJSONObject("overview_polyline");
+            String encodedString = overviewPolylines.getString("points");
+            List<LatLng> list = decodePoly(encodedString);
+           for(int z = 0; z<list.size()-1;z++){
+                LatLng src= list.get(z);
+                LatLng dest= list.get(z+1);
+                Polyline line = mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(src.latitude, src.longitude), new LatLng(dest.latitude,   dest.longitude))
+                .width(2)
+                .color(Color.BLUE).geodesic(true));
+            }
+
+        }
+        catch (JSONException e) {
+
+        }
+    }
+    private List<LatLng> decodePoly(String encoded) {
+
+        List<LatLng> poly = new ArrayList<LatLng>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng( (((double) lat / 1E5)),
+                    (((double) lng / 1E5) ));
+            poly.add(p);
+        }
+
+        return poly;
     }
 
     private Bitmap createDrawableFromView(Context context, View view) {
