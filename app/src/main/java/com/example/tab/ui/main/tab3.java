@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -94,13 +95,18 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
 
     MyTimer myTimer;
 
-    LocationManager locationManager;
     Location location;
-
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationCallback locationCallback;
-    private LocationRequest location_request;
-
+    LocationManager locationManager;
+    LocationListener locationListner = new LocationListener() {
+        public void onLocationChanged(Location location) {
+        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+        public void onProviderEnabled(String provider) {
+        }
+        public void onProviderDisabled(String provider) {
+        }
+    };
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -115,50 +121,12 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
         if(number == null){
             number = "dummy";
         }
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location update_location : locationResult.getLocations()) {
-                    location = update_location;
-                }
-            };
-        };
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
-        fusedLocationClient.getLastLocation().addOnSuccessListener( this.getActivity(), new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location suc_location) {
-                // Got last known location. In some rare situations this can be null.
-                if (suc_location != null) {
-                    location = suc_location;
-                    if(mMap!=null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        LatLng yourplace = new LatLng(latitude, longitude);
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(yourplace, 16));
-                    }
-                }
-            }
-        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         return vi;
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        startLocationUpdates();
-    }
-
-    private void startLocationUpdates() {
-        fusedLocationClient.requestLocationUpdates( location_request, locationCallback, null /* Looper */);
-    }
-
 
     class MyTimer extends CountDownTimer
     {
@@ -215,12 +183,18 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
         }
         @Override
         public void onTick(long millisUntilFinished) {
-            if(location != null) {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                request(number, Double.toString(latitude), Double.toString(longitude));
-                setLocation();
+            locationManager = (LocationManager) myActivity.getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(location == null) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
+            request(number, Double.toString(latitude), Double.toString(longitude));
+
+            setLocation();
         }
         @Override
         public void onFinish() {
@@ -231,7 +205,14 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnMarkerClickListener(this);
+
+//        mSeoul=mMap.addMarker(new MarkerOptions()
+//                .position(SEOUL)
+//                .title("SEOUL"));
+//        mSeoul.setTag(0);
+        locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListner);
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if (location != null) {
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
