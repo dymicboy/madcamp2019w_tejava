@@ -93,8 +93,8 @@ public class tab3 extends Fragment implements
         TelephonyManager tMgr = (TelephonyManager) this.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
 
         number = tMgr.getLine1Number();
-        if(number == ""){
-            number = "dummy";
+        if(number == null){
+            number = "dummy2";
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
@@ -115,6 +115,8 @@ public class tab3 extends Fragment implements
         }
         private void setLocation(){
             if(a>=1){
+                Log.i("clear","clear");
+                mMap.clear();
                 markerList.clear();
             }
             if(json_array!=null) {
@@ -167,6 +169,7 @@ public class tab3 extends Fragment implements
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
             request(number, Double.toString(latitude), Double.toString(longitude));
+
             setLocation();
 
 
