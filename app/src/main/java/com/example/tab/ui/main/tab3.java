@@ -35,6 +35,11 @@ import com.android.volley.toolbox.Volley;
 import com.example.tab.MainActivity;
 import com.example.tab.R;
 import com.example.tab.ui.main.PageViewModel;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,6 +48,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
@@ -53,6 +59,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class tab3 extends Fragment implements
         OnMapReadyCallback{
@@ -72,17 +79,14 @@ public class tab3 extends Fragment implements
 
 
     MyTimer myTimer;
+
     LocationManager locationManager;
-    LocationListener locationListner = new LocationListener() {
-        public void onLocationChanged(Location location) {
-        }
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-        public void onProviderEnabled(String provider) {
-        }
-        public void onProviderDisabled(String provider) {
-        }
-    };
+    Location location;
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private LocationRequest location_request;
+
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -91,20 +95,54 @@ public class tab3 extends Fragment implements
         View vi = inflater.inflate(R.layout.tab3_layout, container, false);
 
         TelephonyManager tMgr = (TelephonyManager) this.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-
         number = tMgr.getLine1Number();
         if(number == null){
-            number = "dummy2";
+            number = "dummy";
         }
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location update_location : locationResult.getLocations()) {
+                    location = update_location;
+                }
+            };
+        };
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
+        fusedLocationClient.getLastLocation().addOnSuccessListener( this.getActivity(), new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location suc_location) {
+                // Got last known location. In some rare situations this can be null.
+                if (suc_location != null) {
+                    location = suc_location;
+                    if(mMap!=null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        LatLng yourplace = new LatLng(latitude, longitude);
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(yourplace, 16));
+                    }
+                }
+            }
+        });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
 
         return vi;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startLocationUpdates();
+    }
+
+    private void startLocationUpdates() {
+        fusedLocationClient.requestLocationUpdates( location_request, locationCallback, null /* Looper */);
+    }
+
 
     class MyTimer extends CountDownTimer
     {
@@ -162,18 +200,12 @@ public class tab3 extends Fragment implements
         }
         @Override
         public void onTick(long millisUntilFinished) {
-            locationManager = (LocationManager) myActivity.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location == null) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if(location != null) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                request(number, Double.toString(latitude), Double.toString(longitude));
+                setLocation();
             }
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            request(number, Double.toString(latitude), Double.toString(longitude));
-
-            setLocation();
         }
         @Override
         public void onFinish() {
@@ -184,14 +216,6 @@ public class tab3 extends Fragment implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-//        mSeoul=mMap.addMarker(new MarkerOptions()
-//                .position(SEOUL)
-//                .title("SEOUL"));
-//        mSeoul.setTag(0);
-        locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListner);
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         if (location != null) {
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
@@ -255,5 +279,4 @@ public class tab3 extends Fragment implements
             e.printStackTrace();
         }
     }
-
 }

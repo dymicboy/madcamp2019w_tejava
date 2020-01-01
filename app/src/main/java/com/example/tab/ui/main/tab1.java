@@ -53,6 +53,7 @@ public class tab1 extends Fragment {
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
         if ((cur != null ? cur.getCount() : 0) > 0) {
+            int i=0;
             while (cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -72,6 +73,8 @@ public class tab1 extends Fragment {
                     pCur.close();
                 }
                 nameList.add(name);
+                i++;
+                if(i==10) break;
             }
         }
         if (cur != null) {
