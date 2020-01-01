@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -167,8 +168,11 @@ public class MainActivity extends AppCompatActivity {
         while (pCur != null && pCur.moveToNext()) {
             ID = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
             phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            phoneNo = phoneNo.replaceAll("[^\\d.]", "");
+
             phone_to_id.put(phoneNo,ID);
             id_to_phone.put(ID,phoneNo);
+            Log.i("numbers",phoneNo);
         }
 
         if (cur != null) {

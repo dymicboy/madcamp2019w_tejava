@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -71,6 +72,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
     private Activity myActivity;
     private JSONArray json_array = null;
     private View markericon;
+    private View markericon2;
 
 
     MyTimer myTimer;
@@ -89,6 +91,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
         myActivity = this.getActivity();
         View vi = inflater.inflate(R.layout.tab3_layout, container, false);
         markericon = inflater.inflate(R.layout.markericon, container, false);
+        markericon2 = inflater.inflate(R.layout.markericon2, container, false);
 
         TelephonyManager tMgr = (TelephonyManager) this.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
         number = tMgr.getLine1Number();
@@ -166,48 +169,32 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
                         Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
                         LatLng tmp_place = new LatLng( tmp_lati, tmp_longi);
 
+
                         if(tmp_number.equals(number)){
-                            //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(R.layout.markericon));
-                            //TextView tmp_text = markericon.findViewById(R.id.tv_marker);
-                            //tmp_text.setText(tmp_name);
+                            TextView tmp_text = markericon.findViewById(R.id.tv_marker);
+                            tmp_text.setText("현재 위치");
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(tmp_place);
                             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon)));
-                            //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            markerList.add(mMap.addMarker(markerOptions));
+                            a=1;
+
                         }
                         else if(phone_to_id.containsKey(tmp_number)) {
                             String tmp_name = id_to_name.get(phone_to_id.get(tmp_number));
-
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(tmp_place);
-
-                            if(tmp_number.equals(number)){
-                                //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(R.layout.markericon));
-
-                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon)));
-                                //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                            }
+                            TextView tmp_text = markericon2.findViewById(R.id.tv_marker);
+                            tmp_text.setText(tmp_name);
+                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon2)));
                             markerList.add(mMap.addMarker(markerOptions));
                             a=1;
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
-//            LatLng tmpplace = new LatLng(latitude, longitude);
-//
-//            if (a >= 1) {
-//                marker.remove();
-//            }
-//            MarkerOptions markerOptions = new MarkerOptions();
-//            markerOptions.position(tmpplace);
-//            markerOptions.title(tmp_number);
-//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-//            marker = mMap.addMarker(markerOptions);
-//            a++;
         }
         @Override
         public void onTick(long millisUntilFinished) {

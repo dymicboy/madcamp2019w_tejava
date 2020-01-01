@@ -14,15 +14,14 @@
         android:textSize="10sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView1"
         app:layout_constraintEnd_toEndOf="parent"
-
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageView
         android:id="@+id/imageView1"
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/marker"
+        android:layout_height="wrap_content"
+        android:src="@drawable/marker2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_marker"
