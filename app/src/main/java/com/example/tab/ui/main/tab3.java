@@ -96,6 +96,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
     MyTimer myTimer;
 
     Location location;
+    Location target_location;
     LocationManager locationManager;
     LocationListener locationListner = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -184,11 +185,11 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
         @Override
         public void onTick(long millisUntilFinished) {
             locationManager = (LocationManager) myActivity.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
+            location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if(location == null) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListner);
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListner);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
@@ -205,11 +206,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-//        mSeoul=mMap.addMarker(new MarkerOptions()
-//                .position(SEOUL)
-//                .title("SEOUL"));
-//        mSeoul.setTag(0);
+        mMap.setOnMarkerClickListener(this);
         locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListner);
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -225,9 +222,15 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
     @Override
     public boolean onMarkerClick(final Marker marker){
         Log.i("click_log","clicked");
-        Double latitude = marker.getPosition().latitude;
-        Double longitude = marker.getPosition().longitude;
-        String request_url = makeURL (location.getLatitude(), location.getLongitude(), latitude, longitude);
+        Double marker_latitude = marker.getPosition().latitude;
+        Double marker_longitude = marker.getPosition().longitude;
+
+        marker_latitude = 36.37382494311092;
+        marker_longitude = 127.06578209697677;
+
+        Log.i("marker location",Double.toString(marker_latitude)+" "+Double.toString(marker_longitude));
+        Log.i("marker location",location.getLatitude()+" "+location.getLongitude());
+        String request_url = makeURL (location.getLatitude(), location.getLongitude(), marker_latitude, marker_longitude);
         path_request(request_url);
         return true;
     }
