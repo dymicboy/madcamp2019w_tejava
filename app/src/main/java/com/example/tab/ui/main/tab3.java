@@ -136,7 +136,10 @@ public class tab3 extends Fragment implements
                         MarkerOptions markerOptions = new MarkerOptions();
                         markerOptions.position(tmpplace);
                         markerOptions.title(tmp_number);
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                        markerOptions.snippet("여의도 한강 치맥 합시다.");
+                        if(tmp_number.equals(number)){
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                        }
                         markerList.add(mMap.addMarker(markerOptions));
                         a=1;
                     } catch (JSONException e) {
@@ -171,8 +174,6 @@ public class tab3 extends Fragment implements
             request(number, Double.toString(latitude), Double.toString(longitude));
 
             setLocation();
-
-
         }
         @Override
         public void onFinish() {
