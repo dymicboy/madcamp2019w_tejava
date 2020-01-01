@@ -162,38 +162,35 @@ public class tab3 extends Fragment implements OnMapReadyCallback{
                         if(tmp.has("number")) tmp_number = tmp.getString("number");
                         else tmp_number = "null";
 
-                        if(phone_to_id.containsKey(tmp_number)) {
-                            String tmp_name = id_to_name.get(phone_to_id.get(tmp_number));
-                            Double tmp_lati = Double.parseDouble(tmp.getString("lati"));
-                            Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
-                            Log.i("location", tmp_lati + " " + tmp_longi);
-
-                        LatLng tmpplace = new LatLng( tmp_lati, tmp_longi);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(tmpplace);
-                        markerOptions.title(tmp_number);
-                        markerOptions.snippet("여의도 한강 치맥 합시다.");
-
+                        Double tmp_lati = Double.parseDouble(tmp.getString("lati"));
+                        Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
+                        LatLng tmp_place = new LatLng( tmp_lati, tmp_longi);
 
                         if(tmp_number.equals(number)){
                             //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(R.layout.markericon));
-
+                            //TextView tmp_text = markericon.findViewById(R.id.tv_marker);
+                            //tmp_text.setText(tmp_name);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(tmp_place);
                             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon)));
                             //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                         }
-                        markerList.add(mMap.addMarker(markerOptions));
-                        a=1;
-                            LatLng tmpplace = new LatLng(tmp_lati, tmp_longi);
+                        else if(phone_to_id.containsKey(tmp_number)) {
+                            String tmp_name = id_to_name.get(phone_to_id.get(tmp_number));
+
                             MarkerOptions markerOptions = new MarkerOptions();
-                            markerOptions.position(tmpplace);
-                            markerOptions.title(tmp_name);
-                            markerOptions.snippet("여의도 한강 치맥 합시다.");
-                            if (tmp_number.equals(number)) {
-                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            markerOptions.position(tmp_place);
+
+                            if(tmp_number.equals(number)){
+                                //markerOptions.icon(BitmapDescriptorFactory.fromBitmap(R.layout.markericon));
+
+                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(myActivity,markericon)));
+                                //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                             }
                             markerList.add(mMap.addMarker(markerOptions));
-                            a = 1;
+                            a=1;
                         }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
