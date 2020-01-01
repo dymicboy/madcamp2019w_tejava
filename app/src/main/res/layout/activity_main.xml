@@ -20,14 +20,24 @@
             android:minHeight="?actionBarSize"
             android:padding="@dimen/appbar_padding"
             android:text="@string/app_name"
+            android:textColor="#6e1212"
             android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_centerInParent="true"
+            android:background="#b08028"/>
 
         <!--  탭들   -->
         <com.google.android.material.tabs.TabLayout
+            android:background="@drawable/bg"
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary" />
+            app:tabTextColor="#6e1212"
+
+            />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!--  아래 레이아웃 viewpager  -->
@@ -35,7 +45,16 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
+
+        >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_centerInParent="true"
+            android:background="#ffffff" />
     </androidx.viewpager.widget.ViewPager>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">데자와</string>
+    <string name="app_name">DEJAVA</string>
     <string name="tab_text_1">연락처</string>
     <string name="tab_text_2">사진</string>
-    <string name="tab_text_3">게임</string>
+    <string name="tab_text_3">위치</string>
 </resources>
