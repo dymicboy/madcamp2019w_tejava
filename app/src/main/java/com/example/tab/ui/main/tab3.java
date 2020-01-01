@@ -1,28 +1,16 @@
 package com.example.tab.ui.main;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -32,9 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.tab.MainActivity;
 import com.example.tab.R;
-import com.example.tab.ui.main.PageViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -49,7 +35,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,20 +43,25 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.Executor;
 
-public class tab3 extends Fragment implements
-        OnMapReadyCallback{
-    static tab3 newInstance() {
-        return new tab3();
+public class tab3 extends Fragment implements OnMapReadyCallback{
+
+    private Hashtable<String, String> id_to_name;
+    private Hashtable<String, String> phone_to_id;
+
+    public tab3(Hashtable<String, String> tmp_id_to_name, Hashtable<String, String> tmp_phone_to_id){
+        id_to_name = tmp_id_to_name;
+        phone_to_id = tmp_phone_to_id;
     }
 
-//    private static final LatLng SEOUL = new LatLng(37.566535, 126.977969);
-//    private Marker mSeoul;
+    public static tab3 newInstance(Hashtable<String, String> tmp_id_to_name, Hashtable<String, String> tmp_id_to_phone) {
+        return new tab3(tmp_id_to_name,tmp_id_to_phone);
+    }
 
     private GoogleMap mMap;
-    List<Marker> markerList = new ArrayList<Marker>();
+    List<Marker> markerList = new ArrayList<>();
     private int a=0;
     private String number;
     private Activity myActivity;
@@ -166,20 +156,23 @@ public class tab3 extends Fragment implements
                         if(tmp.has("number")) tmp_number = tmp.getString("number");
                         else tmp_number = "null";
 
-                        Double tmp_lati = Double.parseDouble(tmp.getString("lati"));
-                        Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
-                        Log.i("location",tmp_lati+" "+tmp_longi);
+                        if(phone_to_id.containsKey(tmp_number)) {
+                            String tmp_name = id_to_name.get(phone_to_id.get(tmp_number));
+                            Double tmp_lati = Double.parseDouble(tmp.getString("lati"));
+                            Double tmp_longi = Double.parseDouble(tmp.getString("longi"));
+                            Log.i("location", tmp_lati + " " + tmp_longi);
 
-                        LatLng tmpplace = new LatLng( tmp_lati, tmp_longi);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(tmpplace);
-                        markerOptions.title(tmp_number);
-                        markerOptions.snippet("여의도 한강 치맥 합시다.");
-                        if(tmp_number.equals(number)){
-                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            LatLng tmpplace = new LatLng(tmp_lati, tmp_longi);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(tmpplace);
+                            markerOptions.title(tmp_name);
+                            markerOptions.snippet("여의도 한강 치맥 합시다.");
+                            if (tmp_number.equals(number)) {
+                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            }
+                            markerList.add(mMap.addMarker(markerOptions));
+                            a = 1;
                         }
-                        markerList.add(mMap.addMarker(markerOptions));
-                        a=1;
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -1,37 +1,39 @@
 package com.example.tab;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.provider.ContactsContract;
 
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.ListFragment;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 import com.example.tab.ui.main.SectionsPagerAdapter;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Hashtable;
 
 public class MainActivity extends AppCompatActivity {
     private int flag = 0;
     private int total_flag = 5;
 
+    private Hashtable<String, String> id_to_name = new Hashtable<>();
+    private Hashtable<String, String> id_to_phone = new Hashtable<>();
+    private Hashtable<String, String> phone_to_id = new Hashtable<>();
+
     private void init() {
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        setAllHashtable();
+
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager(),id_to_name, id_to_phone, phone_to_id);
 
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -134,5 +136,44 @@ public class MainActivity extends AppCompatActivity {
             // other 'case' lines to check for other
             // permissions this app might request.
         }
+    }
+
+
+    @SuppressWarnings("ConstantConditions")
+    private ArrayList setAllHashtable() {
+        ArrayList<String> nameList = new ArrayList<>();
+        ContentResolver cr = this.getContentResolver();
+
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+        if ((cur != null ? cur.getCount() : 0) > 0) {
+            while (cur.moveToNext()) {
+                if (cur.getInt(cur.getColumnIndex( ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                    String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    id_to_name.put(id,name);
+                }
+            }
+        }
+        //핸드폰 번호 hashtable 설정부분
+        Cursor pCur = cr.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+        String phoneNo;
+        String ID;
+        while (pCur != null && pCur.moveToNext()) {
+            ID = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+            phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            phone_to_id.put(phoneNo,ID);
+            id_to_phone.put(ID,phoneNo);
+        }
+
+        if (cur != null) {
+            cur.close();
+        }
+        return nameList;
     }
 }
