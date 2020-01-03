@@ -355,7 +355,7 @@ public class tab3 extends Fragment implements OnMapReadyCallback, GoogleMap.OnMa
         urlString.append(",");
         urlString.append(Double.toString( destlog));
         urlString.append("&sensor=false&mode=driving&alternatives=true");
-        urlString.append("&key=AIzaSyDWKaFb-KlHtk5OLlre37yJeWThk8vSats");
+        urlString.append("&key=YourAPIKey");
         return urlString.toString();
     }
 
